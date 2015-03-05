@@ -7,7 +7,8 @@ function [contrast_results] = testModel(varargin)
 % Required:
 %   Y:      output from CIVET for vertex-wise cortical thickness or surface area
 %   Model:  a model composed of pre-defined Terms you want to include
-%   contrasts:
+%   contrasts: defined Terms in Model for which you would like to generate
+%   tables and t-value maps (and P and Q, if anything passes threshold)
 %   avsurf: the average surface data for the group used for Y
 %
 % Optional:
