@@ -23,10 +23,13 @@ function [ aal_78 ] = loadAal78()
 % region(i).splitHemisphereId:
 % idFromSplitHemisphereId
 
-aalVertexLabels = load('aal_labels_78');
-aalCentroids = load('aal_centroids_78');
-wmDistance = load('aal_distances_wm_78');
-fid=fopen('AAL_78_tabdelim_NF.txt'); aal_78_ids=textscan(fid, '%d %s %s', 78, 'Delimiter', '\t'), fclose(fid);
+aalDir = which('abcd.buildNumber'); % slighty hackish
+aalDir = [aalDir(1:numel(aalDir)-13) '/aal/'];
+
+aalVertexLabels = load([aalDir 'aal_labels_78']);
+aalCentroids = load([aalDir 'aal_centroids_78']);
+wmDistance = load([aalDir 'aal_distances_wm_78']);
+fid=fopen([aalDir 'AAL_78_tabdelim_NF.txt']); aal_78_ids=textscan(fid, '%d %s %s', 78, 'Delimiter', '\t'), fclose(fid);
 
 aal_78 = [];
 
