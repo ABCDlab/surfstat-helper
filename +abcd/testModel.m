@@ -22,27 +22,27 @@ function [contrast_results] = testModel(varargin)
 %   'clusterFormingThreshold': default 0.001
 %   'aal78': TODO
 
-isTerm = @(x) strcmp(class(x),'term');
+isTerm = @(x) isa(x, 'term');
 isContrastSet = @(x) isstruct(x);  % TODO: could be more strict by requiring all of x's fields to match strcmp(class(xfield),'term');
 isSurface = @(x) isstruct(x); % TODO: could be more strict by checking for field names tri and coord
 isIntegerNumeric = @(x) isnumeric(x) && (floor(x) == x);
 isColormap = @(x) ismatrix(x) && size(x, 2)==3;
 
 p = inputParser;
-addRequired(p, 'Y', @ismatrix);
-addRequired(p, 'Model', isTerm);
-addRequired(p, 'contrasts', isContrastSet);
-addRequired(p, 'avsurf', isSurface);
-addOptional(p, 'avsurfPlot', struct(), isSurface);
-addOptional(p, 'mask', [], @islogical); % TODO: after parsing input, assert that dimensions of mask are correct for Y
-addOptional(p, 'captionNotes', struct(), @isstruct);
-addOptional(p, 'dfAdjust', 0, isIntegerNumeric);
-% addOptional(p, 'aal78', .... % TODO: best to provide all AAL data in a single struct variable
-addOptional(p, 'colormap', spectral, isColormap);
-addOptional(p, 'colorbarLimits', [], @isvector); % could be more strict
-addOptional(p, 'clusterFormingThreshold', 0.001, @isnumeric);
+p.addRequired('Y', @ismatrix);
+p.addRequired('Model', isTerm);
+p.addRequired('contrasts', isContrastSet);
+p.addRequired('avsurf', isSurface);
+p.addParamValue('avsurfPlot', struct(), isSurface);
+p.addParamValue('mask', [], @islogical); % TODO: after parsing input, assert that dimensions of mask are correct for Y
+p.addParamValue('captionNotes', struct(), @isstruct);
+p.addParamValue('dfAdjust', 0, isIntegerNumeric);
+% p.addParamValue('aal78', .... % TODO: best to provide all AAL data in a single struct variable
+p.addParamValue('colormap', spectral, isColormap);
+p.addParamValue('colorbarLimits', [], @isvector); % could be more strict
+p.addParamValue('clusterFormingThreshold', 0.001, @isnumeric);
 % TODO: add options for which plots to create, which tables to print (or move table printing to separate function?)
-parse(p,varargin{:});
+p.parse(varargin{:});
 
 % for convenience, make some variables from the required input results
 Y = p.Results.Y;
