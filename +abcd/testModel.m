@@ -66,12 +66,13 @@ contrast_results = [];
 
 % MODEL
 disp('Cross-correlation of parameters in model:');
-term(corrcoef(double(Model)), char(Model))
-figure('Name','cor(mdl)', 'NumberTitle', 'off');
-image(abs(corrcoef(double(Model)))*length(colormap));
-set(gca, 'XTick', [1:size(Model,2)], 'XTickLabel', char(Model), 'YTick', [1:size(Model,2)], 'YTickLabel', char(Model));
-set(colorbar,'YTickLabel',{})
-title('Correlations among model parameters')
+dbl_Model = double(Model); char_Model = char(Model);
+corrplot(dbl_Model(:, 2:end), 'varNames', char_Model(:, 2:end), 'testR', 'on');
+%figure('Name','cor(mdl)', 'NumberTitle', 'off');
+%image(abs(corrcoef(double(Model)))*length(colormap));
+%set(gca, 'XTick', [1:size(Model,2)], 'XTickLabel', char(Model), 'YTick', [1:size(Model,2)], 'YTickLabel', char(Model));
+%set(colorbar,'YTickLabel',{})
+%title('Correlations among model parameters')
 
 slm_main = SurfStatLinMod( Y, Model, avsurf );
 
