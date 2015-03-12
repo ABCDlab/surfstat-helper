@@ -65,15 +65,19 @@ plotEffectSize = false;
 contrast_results = [];
 
 % MODEL
-%disp('Cross-correlation of parameters in model:');
 figure;
-dbl_Model = double(Model); char_Model = char(Model);
-if length(char_Model) > 1
-    dbl_Model = double(Model); char_Model = char(Model);
-    corrplot(dbl_Model(:, 2:end), 'varNames', char_Model(:, 2:end), 'testR', 'on');
-else hist(dbl_Model)
+modelValues = double(Model);
+if size(modelValues,2) > 1
+    modelParameterNames = char(Model);
+    firstParameterIndex = 1;
+    if strcmp(modelParameterNames{1},'1'), firstParameterIndex = 2; end
+    corrplot(modelValues(:, firstParameterIndex:end), 'varNames', modelParameterNames(:, firstParameterIndex:end), 'testR', 'on');
+else
+    hist(modelValues)
 end
 
+%disp('Cross-correlation of parameters in model:');
+%term(corrcoef(double(Model)), char(Model))
 %figure('Name','cor(mdl)', 'NumberTitle', 'off');
 %image(abs(corrcoef(double(Model)))*length(colormap));
 %set(gca, 'XTick', [1:size(Model,2)], 'XTickLabel', char(Model), 'YTick', [1:size(Model,2)], 'YTickLabel', char(Model));
