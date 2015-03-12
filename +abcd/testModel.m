@@ -66,6 +66,7 @@ contrast_results = [];
 
 % MODEL
 %disp('Cross-correlation of parameters in model:');
+figure;
 dbl_Model = double(Model); char_Model = char(Model);
 if length(Model) > 1
     dbl_Model = double(Model); char_Model = char(Model);
