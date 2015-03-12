@@ -68,7 +68,7 @@ contrast_results = [];
 %disp('Cross-correlation of parameters in model:');
 figure;
 dbl_Model = double(Model); char_Model = char(Model);
-if length(Model) < 2
+if length(char_Model) > 1
     dbl_Model = double(Model); char_Model = char(Model);
     corrplot(dbl_Model(:, 2:end), 'varNames', char_Model(:, 2:end), 'testR', 'on');
 else hist(dbl_Model)
