@@ -216,7 +216,8 @@ for c = 1:numel(f);
         set(gcf,'Name', ['Q.' labels.short]);
         set(gcf, 'NumberTitle', 'off');
     end
-
+    
+    
     contrastResults.(contrastname).slm = slm;
     contrastResults.(contrastname).peak = peak;
     contrastResults.(contrastname).pval = pval;
@@ -227,6 +228,14 @@ for c = 1:numel(f);
     contrastResults.(contrastname).tthresh_rft = tthresh;
     contrastResults.(contrastname).tthresh_uc001 = tthreshUC001;
 end
+
+%Add some of the input parameters to the contrastResults struct
+%so they can be given along with the output
+contrastResults.params.Model = p.Results.Model;
+contrastResults.params.dfAdjust = p.Results.dfAdjust;
+contrastResults.params.mask = p.Results.mask;
+contrastResults.params.clusterFormingThreshold = p.Results.clusterFormingThreshold;
+
 
 fprintf('Cluster forming threshold = %s\n', num2str(clusterFormingThreshold));
 for c = 1:numel(f);
