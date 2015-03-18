@@ -1,13 +1,11 @@
-function [mask] = excludeAALRegion(region, currentMask)
+function [mask] = makeAALRoi(region)
 % --EXCLUDE AN AAL REGION--
-% Masks out an area of choice (like ones that don't pass QC)
+% Selects an area of choice (one you have decided to investigate a priori)
 % region: a string that specifies AAL region(s) (e.g. 'Insula').
 %     to get a region in one hemisphere only, type e.g. 'Left Insula'
-%     to get more than one region, type e.g. 'Parietal' 
-% currentMask: the current mask (will be combined with the new mask so you 
-% don't lose any areas already masked)
+%     to get more than one region, type e.g. 'Parietal'
 
-disp('Masking all regions matching:')
+disp('Creating ROI for regions matching:')
 disp(region)
 
 % load the variable aal_78_ids and assigns more information to the struct aal_info
@@ -39,8 +37,7 @@ roiBoolverts = zeros(1,length(aal_info.idByVertex));
 for roid = roiIds
     roiBoolverts = roiBoolverts | (aal_info.idByVertex == roid);
 end
-% next: multiply current mask by the inverse of this logical map
-newMask = ~roiBoolverts;
-mask = logical(currentMask .* newMask);
+% re-define mask
+mask = logical(roiBoolverts);
 
 end %end function
