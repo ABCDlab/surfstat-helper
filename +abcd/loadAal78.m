@@ -2,6 +2,7 @@ function [ aal_78 ] = loadAal78()
 %loadAal78 loads data about the 78 cortical AAL regions
 %
 %   Returns a structure containing:
+%       name:    'AAL'
 %       regions: List of regions where items 1-90 are the full set of AAL
 %                regions, with the 78 cortical regions containing full
 %                information and the remaining non-cortcal regions being
@@ -32,6 +33,7 @@ wmDistance = load([aalDir 'aal_distances_wm_78']);
 fid=fopen([aalDir 'AAL_78_tabdelim_NF.txt']); aal_78_ids=textscan(fid, '%d %s %s', 78, 'Delimiter', '\t'), fclose(fid);
 
 aal_78 = [];
+aal_78.name = 'AAL';
 
 for i = 1:numel(aal_78_ids{1})
     id = aal_78_ids{1}(i);
