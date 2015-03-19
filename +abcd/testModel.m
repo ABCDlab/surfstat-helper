@@ -67,8 +67,6 @@ if (isempty(avsurfPlot))
     avsurfPlot = p.Results.avsurf;
 end
 
-assert(isempty(regionLabels), 'Sorry, region labels are not supported yet! But they will be soon.');
-
 
 plotEffectSize = false;
 
@@ -142,16 +140,11 @@ for c = 1:numel(f);
         term( peak ) + term( SurfStatInd2Coord( peak.vertid, avsurf )', {'x','y','z'})
         if ~isempty(regionLabels)
             for i = 1:size(peak.vertid,1)
-                label = regionLabels(peak.vertid(i));
-                if label > 0 && label <= 78;
-                    label_name = aal_78_ids{2}{label};
-                    label_name_full = aal_78_ids{3}{label};
-                else
-                    label_name = '(not defined)';
-                    label_name_full = '(not defined)';
-                end
+                regionId = regionLabels.idByVertex(peak.vertid(i));
+                label_name = regionLabels.regions(regionId).nameShort;
+                label_name_full = regionLabels.regions(regionId).nameLong;
                 if i <= 10
-                    fprintf('peak #%d at vertid %5d is in AAL region: %s (%s)\n', i, peak.vertid(i), label_name, label_name_full);
+                    fprintf('peak #%d at vertid %5d is in region: %s (%s)\n', i, peak.vertid(i), label_name, label_name_full);
                 end
                 peak.label_name{i} = label_name;
                 peak.label_name_full{i} = label_name_full;
