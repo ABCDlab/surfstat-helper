@@ -1,12 +1,13 @@
-function newMask = maskFromRegionIds(regionLabels, regionIds)
-%  newMask = abcd.maskFromRegionIds(regionLabels, regionIds, ['optionName',optionValue...])
+function mask = maskFromRegionIds(regionLabels, regionIds)
+%  mask = abcd.maskFromRegionIds(regionLabels, regionIds)
 %
-%   Given a loaded atlas regionLabels and a number of region ID numbers, 
-%   Gives a new mask which can be combined with previous mask using 
-%   mask.*newMask
+%   Given a loaded atlas regionLabels and one or more region ID numbers,
+%   returns a logical mask of all vertices contained within these regions.
 %
-
-%   
+%   The returned mask can be combined (intersected) with a previous mask
+%   using previousMask.*mask, or excluded from the previous mask using
+%   previousMask .* ~mask.
+%
 %   Required:
 %       regionLabels    regionLabels variable such as that returned by
 %                       loadAal78
@@ -14,16 +15,14 @@ function newMask = maskFromRegionIds(regionLabels, regionIds)
 %                       regionLabels
 %
 %   Returns:
-%       newMask         Vector (logical) of vertices with value 1
-%                       for masked regions (matching regionIds) and value 0
-%                       for unmasked regions.
+%       mask         Vector (logical) of vertices with value true
+%                       for masked regions (matching one of the regionIds)
+%                       and value false for unmasked regions.
 
 
-newMask = zeros(1,numel(regionLabels.idByVertex));
+mask = false(1,numel(regionLabels.idByVertex));
 
-for id =regionIds(:)'
+for id = regionIds(:)'
     assert(any(regionLabels.idByVertex == id), 'No vertex has ID %.0f', id)
-    newMask(regionLabels.idByVertex == id) = 1;
+    mask(regionLabels.idByVertex == id) = true;
 end
-
-newMask = logical(newMask);
