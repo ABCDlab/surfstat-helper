@@ -68,7 +68,7 @@ if (isempty(avsurfPlot))
 end
 
 
-plotEffectSize = false;
+plotEffectSize = false; % TODO
 
 contrastResults = [];
 
@@ -83,14 +83,6 @@ else
     hist(modelValues)
 end
 set(gcf, 'Name','cor(mdl)', 'NumberTitle', 'off');
-
-%disp('Cross-correlation of parameters in model:');
-%term(corrcoef(double(Model)), char(Model))
-%figure('Name','cor(mdl)', 'NumberTitle', 'off');
-%image(abs(corrcoef(double(Model)))*length(colormap));
-%set(gca, 'XTick', [1:size(Model,2)], 'XTickLabel', char(Model), 'YTick', [1:size(Model,2)], 'YTickLabel', char(Model));
-%set(colorbar,'YTickLabel',{})
-%title('Correlations among model parameters')
 
 slm_main = SurfStatLinMod( Y, Model, avsurf );
 
@@ -209,8 +201,8 @@ for c = 1:numel(f);
         set(gcf,'Name', ['Q.' labels.short]);
         set(gcf, 'NumberTitle', 'off');
     end
-    
-    
+
+
     contrastResults.(contrastname).slm = slm;
     contrastResults.(contrastname).peak = peak;
     contrastResults.(contrastname).pval = pval;
