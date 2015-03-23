@@ -57,25 +57,5 @@ label_map_from_vx = aalVertexLabels.aal_labels;
 label_map_from_vx(label_map_from_vx==0) = 99;
 aal_78.idByVertex = label_map_to_id(label_map_from_vx)';
 
-% Make empty cells into '' or 0, to deal with indexing problems.
-
-for cell = 1:length(aal_78.regions)
-    if ~ischar(aal_78.regions(cell).nameLong)
-        aal_78.regions(cell).nameLong = '';
-    end
-end
-for cell = 1:length(aal_78.regions)
-    if ~ischar(aal_78.regions(cell).nameShort)
-        aal_78.regions(cell).nameShort = '';
-    end
-end
-for cell = 1:length(aal_78.regions)
-    if isempty(aal_78.regions(cell).id)
-        aal_78.regions(cell).id = 0;
-    end
-end
-
-
-
 end
 
