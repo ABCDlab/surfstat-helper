@@ -220,44 +220,32 @@ for c = 1:numel(f);
     contrastResults.(contrastname).resels = resels;
     contrastResults.(contrastname).tthresh_rft = tthresh;
     contrastResults.(contrastname).tthresh_uc001 = tthreshUC001;
+    export = [];
+    export.n = [1:size(contrastResults.(contrastname).peak.vertid,1)]';
+    export.labelShort = char(contrastResults.(contrastname).peak.label_name);
+    export.labelLong = char(contrastResults.(contrastname).peak.label_name_full);
+    export.vertid = contrastResults.(contrastname).peak.vertid;
+    export.clusid = contrastResults.(contrastname).peak.clusid;
+    xyz = SurfStatInd2Coord( contrastResults.(contrastname).peak.vertid, avsurf )';
+    export.x = xyz(:,1);
+    export.y = xyz(:,2);
+    export.z = xyz(:,3);
+    export.t = contrastResults.(contrastname).peak.t;
+    export.P_RFTpk = contrastResults.(contrastname).peak.P;
+    export.P_RFTcl = contrastResults.(contrastname).clus.P(contrastResults.(contrastname).peak.clusid);
+    export.Q_RFTpk = contrastResults.(contrastname).qval.Q(1,contrastResults.(contrastname).peak.vertid)';
+    export.P_UC = 1-tcdf(contrastResults.(contrastname).peak.t, contrastResults.(contrastname).slm.df);
+    contrastResults.(contrastname).data.table = [export.n, ...
+        export.vertid,export.clusid, ...
+        export.x, export.y, export.z, ...
+        export.t, ...
+        export.P_RFTpk, ...
+        export.P_RFTcl, ...
+        export.Q_RFTpk, ...
+        export.P_UC,];
+    contrastResults.(contrastname).data.labelShort = export.labelShort;
+    contrastResults.(contrastname).data.labelLong = export.labelLong;
     
-    % TO DO ------------this loop gets region labels for each peak.
-%     if isfield(contrastResults.(contrastname).peak,'vertid')
-%         for i = contrastResults.(contrastname).peak.vertid
-%             disp i
-%         end
-%     end
-%         label = regionLabels.idByVertex(peak.vertid(i));
-%         if label > 0 && label <= 78;
-%             nameShort = aal_78_ids{2}{label};
-%             nameLong = aal_78_ids{3}{label};
-%         else
-%             nameShort = '(not defined)';
-%             nameLong = '(not defined)';
-%         end
-%         peak.nameShort{i} = nameShort;
-%         peak.nameLong{i} = nameLong;
-%     end
-%     
-%     export = [];
-%     export.n = [1:size(contrastResults.(contrastname).peak.vertid,1)]';
-%     export.labelShort = char(contrastResults.(contrastname).peak.label_name);
-%     export.labelLong = char(contrastResults.(contrastname).peak.label_name_full);
-%     export.vertid = contrastResults.(contrastname).peak.vertid;
-%     export.clusid = contrastResults.(contrastname).peak.clusid;
-%     xyz = SurfStatInd2Coord( contrastResults.(contrastname).peak.vertid, avsurf )';
-%     export.x = xyz(:,1);
-%     export.y = xyz(:,2);
-%     export.z = xyz(:,3);
-%     export.t = contrastResults.(contrastname).peak.t;
-%     export.P_RFTpk = contrastResults.(contrastname).peak.P;
-%     export.P_RFTcl = contrastResults.(contrastname).clus.P(contrastResults.(contrastname).peak.clusid);
-%     export.Q_RFTpk = contrastResults.(contrastname).qval.Q(1,contrastResults.(contrastname).peak.vertid)';
-%     export.P_UC = 1-tcdf(contrastResults.(contrastname).peak.t, contrastResults.(contrastname).slm.df);
-%     contrastResults.(contrastname).data = [export.n,export.vertid,export.clusid, ...
-%         export.x,export.y,export.z,export.t,export.P_RFTpk,export.P_RFTcl,export.Q_RFTpk,export.P_UC,];
-%     contrastResults.(contrastname).label_name = export.label_name;
-%     contrastResults.(contrastname).label_full = export.label_full;
 end
 
 %Add some of the input parameters to the contrastResults struct
