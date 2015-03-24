@@ -212,31 +212,36 @@ for c = 1:numel(f);
     contrastResults.(contrastname).resels = resels;
     contrastResults.(contrastname).tthresh_rft = tthresh;
     contrastResults.(contrastname).tthresh_uc001 = tthreshUC001;
-    export = [];
-    export.n = [1:size(contrastResults.(contrastname).peak.vertid,1)]';
-    export.labelShort = char(contrastResults.(contrastname).peak.label_name);
-    export.labelLong = char(contrastResults.(contrastname).peak.label_name_full);
-    export.vertid = contrastResults.(contrastname).peak.vertid;
-    export.clusid = contrastResults.(contrastname).peak.clusid;
-    xyz = SurfStatInd2Coord( contrastResults.(contrastname).peak.vertid, avsurf )';
-    export.x = xyz(:,1);
-    export.y = xyz(:,2);
-    export.z = xyz(:,3);
-    export.t = contrastResults.(contrastname).peak.t;
-    export.P_RFTpk = contrastResults.(contrastname).peak.P;
-    export.P_RFTcl = contrastResults.(contrastname).clus.P(contrastResults.(contrastname).peak.clusid);
-    export.Q_RFTpk = contrastResults.(contrastname).qval.Q(1,contrastResults.(contrastname).peak.vertid)';
-    export.P_UC = 1-tcdf(contrastResults.(contrastname).peak.t, contrastResults.(contrastname).slm.df);
-    contrastResults.(contrastname).data.table = [export.n, ...
-        export.vertid,export.clusid, ...
-        export.x, export.y, export.z, ...
-        export.t, ...
-        export.P_RFTpk, ...
-        export.P_RFTcl, ...
-        export.Q_RFTpk, ...
-        export.P_UC,];
-    contrastResults.(contrastname).data.labelShort = export.labelShort;
-    contrastResults.(contrastname).data.labelLong = export.labelLong;
+    
+    if isfield(contrastResults.(contrastname).peak, 'vertid')
+        export = [];
+        export.n = [1:size(contrastResults.(contrastname).peak.vertid,1)]';
+        export.labelShort = char(contrastResults.(contrastname).peak.label_name);
+        export.labelLong = char(contrastResults.(contrastname).peak.label_name_full);
+        export.vertid = contrastResults.(contrastname).peak.vertid;
+        export.clusid = contrastResults.(contrastname).peak.clusid;
+        xyz = SurfStatInd2Coord( contrastResults.(contrastname).peak.vertid, avsurf )';
+        export.x = xyz(:,1);
+        export.y = xyz(:,2);
+        export.z = xyz(:,3);
+        export.t = contrastResults.(contrastname).peak.t;
+        export.P_RFTpk = contrastResults.(contrastname).peak.P;
+        export.P_RFTcl = contrastResults.(contrastname).clus.P(contrastResults.(contrastname).peak.clusid);
+        export.Q_RFTpk = contrastResults.(contrastname).qval.Q(1,contrastResults.(contrastname).peak.vertid)';
+        export.P_UC = 1-tcdf(contrastResults.(contrastname).peak.t, contrastResults.(contrastname).slm.df);
+        contrastResults.(contrastname).data.table = [export.n, ...
+            export.vertid,export.clusid, ...
+            export.x, export.y, export.z, ...
+            export.t, ...
+            export.P_RFTpk, ...
+            export.P_RFTcl, ...
+            export.Q_RFTpk, ...
+            export.P_UC,];
+        contrastResults.(contrastname).data.labelShort = export.labelShort;
+        contrastResults.(contrastname).data.labelLong = export.labelLong;
+    else
+        contrastResults.(contrastname).data = [];
+    end
     
 end
 
