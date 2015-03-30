@@ -167,7 +167,7 @@ for c = 1:numel(f);
     captionText = sprintf('T: %s, pk=%.2f, npk=%.2f (0.05r=%.2f, 0.001u=%.2f) %s\n%s\n%s', labels.name, max(slm.t.*mask), min(slm.t.*mask), tthresh, tthreshUC001, n_note, modelString, notes);
     contrastResults.(contrastname).figT = figure; SurfStatView( slm.t.*mask, avsurfPlot );
     colormap(imageColormap);
-    dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',12); suptitle(captionText); set(gcf,'defaultaxesfontsize',dafs);
+    dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',12); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
     set(gcf,'Name',['T.' labels.short]);
     set(gcf, 'NumberTitle', 'off');
     if numel(fixedColorbarLimits) > 0
@@ -180,7 +180,7 @@ for c = 1:numel(f);
     if (plotEffectSize)
         figure; SurfStatView( slm.ef.*mask, avsurfinfl, ' ' );
         captionText = sprintf('Effect size (coef) for %s, pk=%.2f, npk=%.2f %s\n%s\n%s', labels.name, max(slm.ef.*mask), min(slm.ef.*mask), n_note, modelString, notes);
-        dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); suptitle(captionText); set(gcf,'defaultaxesfontsize',dafs);
+        dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
         set(gcf,'Name',['ef.' labels.short]);
         set(gcf, 'NumberTitle', 'off');
     end
@@ -192,7 +192,7 @@ for c = 1:numel(f);
         if minPValue < 0.05
             captionText = sprintf('P: %s, pk=%.2f clThr=%s %s\n%s\n%s', labels.name, minPValue, num2str(clusterFormingThreshold), n_note, modelString, notes);
             contrastResults.(contrastname).figP = figure; SurfStatView( pval, avsurfPlot, ' ' );
-            dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); suptitle(captionText); set(gcf,'defaultaxesfontsize',dafs);
+            dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
             set(gcf,'Name', ['P.' labels.short]);
             set(gcf, 'NumberTitle', 'off');
         end
@@ -205,7 +205,7 @@ for c = 1:numel(f);
     if minQValue < 0.05
         captionText = sprintf('Q: %s, pk=%.2f %s\n%s\n%s', labels.name, minQValue, n_note, modelString, notes);
         contrastResults.(contrastname).figQ = figure; SurfStatView( qval, avsurfPlot, ' ');
-        dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); suptitle(captionText); set(gcf,'defaultaxesfontsize',dafs);
+        dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
         set(gcf,'Name', ['Q.' labels.short]);
         set(gcf, 'NumberTitle', 'off');
     end
