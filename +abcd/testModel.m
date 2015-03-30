@@ -15,7 +15,7 @@ function [contrastResults] = testModel(varargin)
 %   'avsurfPlot': default same as avsurf
 %   'mask': default true for all vertices
 %   'avsurfPlot': average surface rendering
-%   'captionNotes': struct variable
+%   'captionNotes': figure caption notes, as string or attributeStore or struct
 %   'dfAdjust': default 0
 %   'colormap': default spectral
 %   'colorbarLimits': default actual min/max of data
@@ -27,6 +27,7 @@ isContrastSet = @(x) isstruct(x);  % TODO: could be more strict by requiring all
 isSurface = @(x) isstruct(x); % TODO: could be more strict by checking for field names tri and coord
 isIntegerNumeric = @(x) isnumeric(x) && (floor(x) == x);
 isColormap = @(x) ismatrix(x) && size(x, 2)==3;
+isCaptionNotes = @(x) isstruct(x) || isa(x,'abcd.attributeStore') || ischar(x);
 
 p = inputParser;
 p.addRequired('Y', @ismatrix);
@@ -35,7 +36,7 @@ p.addRequired('contrasts', isContrastSet);
 p.addRequired('avsurf', isSurface);
 p.addParamValue('avsurfPlot', [], isSurface);
 p.addParamValue('mask', [], @islogical); % TODO: after parsing input, assert that dimensions of mask are correct for Y
-p.addParamValue('captionNotes', struct(), @isstruct);
+p.addParamValue('captionNotes', '', isCaptionNotes);
 p.addParamValue('dfAdjust', 0, isIntegerNumeric);
 p.addParamValue('regionLabels', [], @isstruct);
 p.addParamValue('colormap', spectral, isColormap);
@@ -94,7 +95,14 @@ for s = char(Model)
     modelString = [modelString s{1}];
 end
 
-notes=''; for f=fields(captionNotes)'; notes=[notes captionNotes.(char(f)) ' ']; end
+notes=''; 
+if ischar(captionNotes)
+    notes = captionNotes;
+elseif isa(captionNotes,'abcd.attributeStore')
+    notes = captionNotes.asString();
+elseif isstruct(captionNotes)
+    for f=fields(captionNotes)'; notes=[notes captionNotes.(char(f)) ' ']; end
+end
 
 % plots will generally be captioned as such:
 % line 1) contrast term / peak npk thresholds / N DF
