@@ -26,6 +26,7 @@ isTerm = @(x) isa(x, 'term');
 isContrastSet = @(x) isstruct(x);  % TODO: could be more strict by requiring all of x's fields to match strcmp(class(xfield),'term');
 isSurface = @(x) isstruct(x); % TODO: could be more strict by checking for field names tri and coord
 isIntegerNumeric = @(x) isnumeric(x) && (floor(x) == x);
+isScalarLogical = @(x) islogical(x) && isscalar(x);
 isColormap = @(x) ismatrix(x) && size(x, 2)==3;
 isCaptionNotes = @(x) isstruct(x) || isa(x,'abcd.attributeStore') || ischar(x);
 
@@ -37,6 +38,7 @@ p.addRequired('avsurf', isSurface);
 p.addParamValue('avsurfPlot', [], isSurface);
 p.addParamValue('mask', [], @islogical); % TODO: after parsing input, assert that dimensions of mask are correct for Y
 p.addParamValue('captionNotes', '', isCaptionNotes);
+p.addParamValue('twoTailed', true, isScalarLogical);
 p.addParamValue('dfAdjust', 0, isIntegerNumeric);
 p.addParamValue('regionLabels', [], @isstruct);
 p.addParamValue('colormap', spectral, isColormap);
@@ -133,7 +135,15 @@ for c = 1:numel(f);
 
     [ resels, reselspervert, edg ] = SurfStatResels( slm, mask );
     [ pval, peak, clus, clusid ] = SurfStatP( slm, boolean(mask), clusterFormingThreshold);
-
+    
+    if p.Results.twoTailed
+        fprintf('Adjusting P values to two-tailed for all peaks and clusters\n');
+        if isfield(pval, 'P'),  pval.P = 2*pval.P; end
+        if isfield(pval, 'C'),  pval.C = 2*pval.C; end
+        if isfield(peak, 'P'),  peak.P = 2*peak.P; end
+        if isfield(clus, 'P'),  clus.P = 2*clus.P; end
+    end
+    
     % PRINT PEAK SUMMARY
     if numel(peak) > 0
         peak.label_name = [];
@@ -157,11 +167,20 @@ for c = 1:numel(f);
     end
     term( clus )
 
-    tthresh = stat_threshold( resels, length(slm.t), 1, slm.df );
-    tthreshUC001 = -1*tinv(0.001,slm.df);
+    
+    if p.Results.twoTailed
+        n_note_tail = '2-tailed';
+        tailFactor = 2;
+    else
+        n_note_tail = '1-tailed';
+        tailFactor = 1;
+    end
+    
+    tthresh = stat_threshold( resels, length(slm.t), 1, slm.df, 0.05/tailFactor );
+    tthreshUC001 = -1*tinv(0.001/tailFactor,slm.df);
 
-    n_note = sprintf(' [N=%i,DF=%i]', size(Model,1), slm.df);
-
+    n_note = sprintf(' [N=%i,DF=%i,%s]', size(Model,1), slm.df, n_note_tail);
+    
     % PLOT T MAP
     maxAbsoluteTValue = max([max(slm.t.*mask) abs(min(slm.t.*mask))]);
     captionText = sprintf('T: %s, pk=%.2f, npk=%.2f (0.05r=%.2f, 0.001u=%.2f) %s\n%s\n%s', labels.name, max(slm.t.*mask), min(slm.t.*mask), tthresh, tthreshUC001, n_note, modelString, notes);
@@ -202,8 +221,14 @@ for c = 1:numel(f);
     qval = SurfStatQ( slm, boolean(mask) );
     minQValue = min(qval.Q(boolean(mask)))
     contrastResults.(contrastname).figQ = [];
+
     if minQValue < 0.05
-        captionText = sprintf('Q: %s, pk=%.2f %s\n%s\n%s', labels.name, minQValue, n_note, modelString, notes);
+        warningNote = '';
+        if p.Results.twoTailed
+            warningNote = '*This result 1-tailed!';
+        end
+        
+        captionText = sprintf('Q: %s, pk=%.2f %s %s\n%s\n%s', labels.name, minQValue, n_note, warningNote, modelString, notes);
         contrastResults.(contrastname).figQ = figure; SurfStatView( qval, avsurfPlot, ' ');
         dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
         set(gcf,'Name', ['Q.' labels.short]);
@@ -225,10 +250,11 @@ end
 %Add some of the input parameters to the contrastResults struct
 %so they can be given along with the output
 contrastResults.params.Model = p.Results.Model;
+contrastResults.params.twoTailed = p.Results.twoTailed;
 contrastResults.params.dfAdjust = p.Results.dfAdjust;
 contrastResults.params.mask = p.Results.mask;
 contrastResults.params.clusterFormingThreshold = p.Results.clusterFormingThreshold;
-
+contrastResults.params.plotNotes = captionNotes;
 
 fprintf('Cluster forming threshold = %s\n', num2str(clusterFormingThreshold));
 for c = 1:numel(f);
