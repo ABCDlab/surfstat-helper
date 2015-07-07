@@ -1,12 +1,14 @@
 function saveFigures(varargin)
 % Saves figure(s) to file(s), in one or multiple formats.
 %
-% saveFigures(directory, ['optionName', optionValue...])
+% saveFigures('optionName', optionValue...)
 %
 % Options
 %
 %   'directory' Output directory (default current directory)
 %   'prefix'    Filename prefix (default none)
+%   'handles'   Vector of figure handles to save; if omitted, saves current
+%               or all figures depending on 'all' argument
 %   'all'       If true, saves all open figures; if false, only saves
 %               current figure (default false) 
 %   'formats'   Cell array of formats to save. Available formats are 'png',
@@ -28,6 +30,7 @@ function saveFigures(varargin)
 p = inputParser;
 p.addParamValue('directory', '.', @ischar);
 p.addParamValue('prefix', '', @ischar);
+p.addParamValue('handles', [], @isnumeric);
 p.addParamValue('all', false, @islogical);
 p.addParamValue('formats', {'png'}, @iscellstr);
 p.addParamValue('pngRes', 150, @isnumeric);
@@ -64,7 +67,9 @@ if (asPng && ~exist('export_fig', 'file'))
     error('PNG selected as an output format, but export_fig script is not installed!');
 end
 
-if allFigs
+if ~isempty(p.Results.handles)
+    figureHandles = p.Results.handles(:);
+elseif allFigs
     figureHandles = flipud(get(0,'Children'));
 else
     figureHandles = gcf;
