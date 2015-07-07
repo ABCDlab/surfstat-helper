@@ -10,7 +10,7 @@ assert(isnumeric(valueOfInterest), 'valueOfInterest argument must be numeric');
 
 valueOfInterest = valueOfInterest(:); % make sure is column vector
 
-assert(isa(groupingTerm, 'term'), 'goupingTerm argument must be a term variable');
+assert(isa(groupingTerm, 'term'), 'groupingTerm argument must be a term variable');
 assert(size(groupingTerm,1)==numel(valueOfInterest), 'valueOfInterest and groupingTerm must have the same number of items');
 
 groupingTermNames = char(groupingTerm);
