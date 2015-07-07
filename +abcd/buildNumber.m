@@ -12,6 +12,6 @@ function n = buildNumber()
     %
     % See the requireBuildNumber function.
 
-    n = 1.0;
+    n = 2.0;
 
 end
