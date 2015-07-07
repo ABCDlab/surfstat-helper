@@ -1,14 +1,49 @@
-function [ figureHandle ] = histStacked( valueOfInterest, groupingTerm, groupingTermName )
+function [ figureHandle ] = histStacked( valueOfInterest, groupingTerm, groupingTermTitle, valueTitle )
 % [ figureHandle ] = histStacked( valueOfInterest, groupingTerm )
-% 
-%   valueOfInterest     A column vector of numeric data values
-%   groupingTerm        A term (SurfStat) containing the group membership
-%                       of the data values
+%
+%   valueOfInterest     A column vector or cell array of numeric data values
+%   groupingTerm        A term (SurfStat) or cell array (string) containing the group
+%                       membership of the data values
+%   groupingTermTitle   A string to label the grouping term in the plot
+%   valueTitle          A string to label the type of values being plotted
+%
+%   Note that there are two different ways of specifying the values/groups:
+%       Single column vector with grouping term:
+%           values = column vector, e.g. [1; 2; 3; 4]
+%           grouping = SurfStat term with categorical values, e.g. term({'GroupA', 'GroupB', 'GroupA', 'GroupB'})
+%           Note that in this case, the grouping argument has the same number of items as the values vector
+%       Cell array of values with character array of group labels:
+%           values = cell array where the groups are already separated, e.g. {[1; 3], [2; 4]}
+%           grouping = cell array of strings to label the groups, e.g. {'GroupA', 'GroupB'}
+%           Note that in this case, the grouping argument has as many items as the number of groups in the values array
+%   Note that the two examples above are equivalent.
+%   If your data have the groups already separated, consider using the second method.
+
+if nargin < 4
+    valueTitle = '';
+end
+if nargin < 3
+    groupingTermTitle = '';
+end
 
 assert(isvector(valueOfInterest), 'valueOfInterest argument must be a vector');
-assert(isnumeric(valueOfInterest), 'valueOfInterest argument must be numeric');
+assert(isnumeric(valueOfInterest)|iscell(valueOfInterest), 'valueOfInterest argument must be numeric');
 
 valueOfInterest = valueOfInterest(:); % make sure is column vector
+
+if iscell(valueOfInterest)
+    tempGroups = cell(numel(valueOfInterest),1);
+    for i=1:numel(valueOfInterest)
+        valueOfInterest{i} = valueOfInterest{i}(:); % make sure elements are column vectors
+        tempGroups{i} = repmat(groupingTerm{i}(:)', numel(valueOfInterest{i}), 1);
+    end
+    groupingTerm = term(cellstr(char(tempGroups)));
+    valueOfInterest = cell2mat(valueOfInterest(:));
+end
+
+if iscellstr(groupingTerm)
+    groupingTerm = term(groupingTerm);
+end
 
 assert(isa(groupingTerm, 'term'), 'groupingTerm argument must be a term variable');
 assert(size(groupingTerm,1)==numel(valueOfInterest), 'valueOfInterest and groupingTerm must have the same number of items');
@@ -27,21 +62,29 @@ for iG=1:numGroupingTerms
         end
     end
 end
-[P,ANOVATAB,STATS] = anova1(valueOfInterest, groupingTermCellstr, 'off');
+usableElements = ~isnan(valueOfInterest);
+[P,ANOVATAB,STATS] = anova1(valueOfInterest(usableElements), groupingTermCellstr(usableElements), 'off');
 P
 
 % histo - w/ normal fit
-figureHandle = figure; 
+figureHandle = figure;
 [n,xout] = hist(valueOfInterest);
 binwidth=xout(2)-xout(1);
 for i = 1:numGroupingTerms
     subplot(numGroupingTerms,1,i);
-    histfit(valueOfInterest(logical(groupingTerm.(groupingTermNames{i}))));
+    values = valueOfInterest(logical(groupingTerm.(groupingTermNames{i})));
+    histfit(values);
     xlim([xout(1)-binwidth xout(numel(xout))+binwidth]);
     ylabel('N subjects');
-    xlabel(['values for ' groupingTermNames{i}]);
+    usableValues = ~isnan(values);
+    numNan = sum(~usableValues);
+    nanNote = '';
+    if numNan > 0
+        nanNote = sprintf('  [%d NaN values]', numNan);
+    end
+    xlabel(sprintf('%s values for %s  (mean %.2f, SD %.2f)%s', valueTitle, groupingTermNames{i}, mean(values(usableValues)), std(values(usableValues)), nanNote));
     if (i==1)
-        title(sprintf('%s\nP = %s', groupingTermName, num2str(P)));
+        title(sprintf('%s\nP = %s', groupingTermTitle, num2str(P)));
     end
 end
 
