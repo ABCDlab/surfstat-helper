@@ -74,6 +74,7 @@ end
 plotEffectSize = false; % TODO
 
 contrastResults = [];
+figureHandles = [];
 
 % MODEL
 modelValues = double(Model);
@@ -82,8 +83,10 @@ if size(modelValues,2) > 1
     firstParameterIndex = 1;
     if strcmp(modelParameterNames{1},'1'), firstParameterIndex = 2; end
     corrplot(modelValues(:, firstParameterIndex:end), 'varNames', modelParameterNames(:, firstParameterIndex:end), 'testR', 'on');
+    figureHandles = [figureHandles gcf];
 else
     hist(modelValues)
+    figureHandles = [figureHandles gcf];
 end
 set(gcf, 'Name','cor(mdl)', 'NumberTitle', 'off');
 
@@ -97,7 +100,7 @@ for s = char(Model)
     modelString = [modelString s{1}];
 end
 
-notes=''; 
+notes='';
 if ischar(captionNotes)
     notes = captionNotes;
 elseif isa(captionNotes,'abcd.attributeStore')
@@ -119,6 +122,10 @@ for c = 1:numel(f);
     contrastname = f{c};
     contrast = contrasts.(contrastname);
 
+    if size(contrast,2) > 1
+        warning('Contrast "%s" has >1 column! This will probably cause an error in SurfStatT. Did you enter a categorical factor instead of a contrast between this factor''s specific levels?', contrastname);
+    end
+
     labels = []; labels.name = contrastname; labels.short = lower(labels.name);
 
     slm = slm_main;
@@ -135,7 +142,7 @@ for c = 1:numel(f);
 
     [ resels, reselspervert, edg ] = SurfStatResels( slm, mask );
     [ pval, peak, clus, clusid ] = SurfStatP( slm, boolean(mask), clusterFormingThreshold);
-    
+
     if p.Results.twoTailed
         fprintf('Adjusting P values to two-tailed for all peaks and clusters\n');
         if isfield(pval, 'P'),  pval.P = 2*pval.P; end
@@ -143,7 +150,7 @@ for c = 1:numel(f);
         if isfield(peak, 'P'),  peak.P = 2*peak.P; end
         if isfield(clus, 'P'),  clus.P = 2*clus.P; end
     end
-    
+
     % PRINT PEAK SUMMARY
     if numel(peak) > 0
         peak.label_name = [];
@@ -167,7 +174,6 @@ for c = 1:numel(f);
     end
     term( clus )
 
-    
     if p.Results.twoTailed
         n_note_tail = '2-tailed';
         tailFactor = 2;
@@ -175,16 +181,17 @@ for c = 1:numel(f);
         n_note_tail = '1-tailed';
         tailFactor = 1;
     end
-    
+
     tthresh = stat_threshold( resels, length(slm.t), 1, slm.df, 0.05/tailFactor );
     tthreshUC001 = -1*tinv(0.001/tailFactor,slm.df);
 
     n_note = sprintf(' [N=%i,DF=%i,%s]', size(Model,1), slm.df, n_note_tail);
-    
+
     % PLOT T MAP
     maxAbsoluteTValue = max([max(slm.t.*mask) abs(min(slm.t.*mask))]);
     captionText = sprintf('T: %s, pk=%.2f, npk=%.2f (0.05r=%.2f, 0.001u=%.2f) %s\n%s\n%s', labels.name, max(slm.t.*mask), min(slm.t.*mask), tthresh, tthreshUC001, n_note, modelString, notes);
     contrastResults.(contrastname).figT = figure; SurfStatView( slm.t.*mask, avsurfPlot );
+    figureHandles = [figureHandles contrastResults.(contrastname).figT];
     colormap(imageColormap);
     dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',12); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
     set(gcf,'Name',['T.' labels.short]);
@@ -197,7 +204,8 @@ for c = 1:numel(f);
 
     % PLOT EFFECT SIZE
     if (plotEffectSize)
-        figure; SurfStatView( slm.ef.*mask, avsurfinfl, ' ' );
+        contrastResults.(contrastname).figEf = figure; SurfStatView( slm.ef.*mask, avsurfinfl, ' ' );
+        figureHandles = [figureHandles contrastResults.(contrastname).figEf];
         captionText = sprintf('Effect size (coef) for %s, pk=%.2f, npk=%.2f %s\n%s\n%s', labels.name, max(slm.ef.*mask), min(slm.ef.*mask), n_note, modelString, notes);
         dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
         set(gcf,'Name',['ef.' labels.short]);
@@ -211,6 +219,7 @@ for c = 1:numel(f);
         if minPValue < 0.05
             captionText = sprintf('P: %s, pk=%.2f clThr=%s %s\n%s\n%s', labels.name, minPValue, num2str(clusterFormingThreshold), n_note, modelString, notes);
             contrastResults.(contrastname).figP = figure; SurfStatView( pval, avsurfPlot, ' ' );
+            figureHandles = [figureHandles contrastResults.(contrastname).figP];
             dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
             set(gcf,'Name', ['P.' labels.short]);
             set(gcf, 'NumberTitle', 'off');
@@ -227,9 +236,10 @@ for c = 1:numel(f);
         if p.Results.twoTailed
             warningNote = '*This result 1-tailed!';
         end
-        
+
         captionText = sprintf('Q: %s, pk=%.2f %s %s\n%s\n%s', labels.name, minQValue, n_note, warningNote, modelString, notes);
         contrastResults.(contrastname).figQ = figure; SurfStatView( qval, avsurfPlot, ' ');
+        figureHandles = [figureHandles contrastResults.(contrastname).figQ];
         dafs=get(gcf,'defaultaxesfontsize'); set(gcf,'defaultaxesfontsize',9); h=suptitle(captionText); set(h, 'interpreter','none'); set(gcf,'defaultaxesfontsize',dafs);
         set(gcf,'Name', ['Q.' labels.short]);
         set(gcf, 'NumberTitle', 'off');
@@ -255,8 +265,10 @@ contrastResults.params.dfAdjust = p.Results.dfAdjust;
 contrastResults.params.mask = p.Results.mask;
 contrastResults.params.clusterFormingThreshold = p.Results.clusterFormingThreshold;
 contrastResults.params.plotNotes = captionNotes;
+contrastResults.params.figureHandles = figureHandles;
 
 fprintf('Cluster forming threshold = %s\n', num2str(clusterFormingThreshold));
+
 for c = 1:numel(f);
     contrastname = f{c};
     nResult = [];
