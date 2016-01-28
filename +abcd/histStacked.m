@@ -82,9 +82,9 @@ for i = 1:numGroupingTerms
     if numNan > 0
         nanNote = sprintf('  [%d NaN values]', numNan);
     end
-    xlabel(sprintf('%s values for %s  (mean %.2f, SD %.2f)%s', valueTitle, groupingTermNames{i}, mean(values(usableValues)), std(values(usableValues)), nanNote));
+    xlabel(sprintf('%s values for %s  (mean %.2f, SD %.2f)%s', valueTitle, groupingTermNames{i}, mean(values(usableValues)), std(values(usableValues)), nanNote), 'Interpreter','none');
     if (i==1)
-        title(sprintf('%s\nP = %s', groupingTermTitle, num2str(P)));
+        title(sprintf('%s\nP = %s', groupingTermTitle, num2str(P)), 'Interpreter','none');
     end
 end
 
