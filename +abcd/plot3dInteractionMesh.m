@@ -167,11 +167,12 @@ plotData = [];
 plotData.handle.figure = figure;
 hold on
 
+plotXYvals = [];
+plotXYvals.x = p.Results.xMean + sourceVals.x * p.Results.xSD;  % un-standardize if necessary
+plotXYvals.y = p.Results.yMean + sourceVals.y * p.Results.ySD;
+
 % Plot Scatter
 if isempty(p.Results.groupColumns)
-    plotXYvals = [];
-    plotXYvals.x = p.Results.xMean + sourceVals.x * p.Results.xSD;  % un-standardize if necessary
-    plotXYvals.y = p.Results.yMean + sourceVals.y * p.Results.ySD;
 
     plotData.handle.scatter = scatter3(plotXYvals.x, plotXYvals.y, plotDependentValues, p.Results.markerSize, dependentValues, 'filled');
     if ~isempty(p.Results.limits) 

@@ -10,20 +10,22 @@ function saveFigures(varargin)
 %   'handles'   Vector of figure handles to save; if omitted, saves current
 %               or all figures depending on 'all' argument
 %   'all'       If true, saves all open figures; if false, only saves
-%               current figure (default false) 
+%               current figure (default false)
 %   'formats'   Cell array of formats to save. Available formats are 'png',
 %               'fig' and 'pdf'. (default {'png'})
 %   'pngRes'    Resolution for PNG images. Higher values produce larger
-%               images. (default 150) 
+%               images. (default 150)
 %   'saveWorkspace' If true, saves MATLAB workspace to a .mat file (default
 %                      false)
 %   'hideCaption' If true, hides figure caption from SurfStatView figures
-%                 before saving (default false) 
+%                 before saving (default false)
 %   'figNumbers' If true, figure numbers are included in filenames (default
 %                false)
 %   'windowLayout' Set a MATLAB window layout before saving figures (useful
 %                  to ensure a standard window size or undocking figures;
 %                  default none)
+%   'size'      If present, set [w h] of figures (the units are same as
+%                  curently set by Matlab via the 'PaperUnits' figure parameter)
 
 
 
@@ -39,8 +41,8 @@ p.addParamValue('hideCaption', false, @islogical);
 p.addParamValue('figNumbers', false, @islogical);
 p.addParamValue('clusterFormingThreshold', 0.001, @isnumeric);
 p.addParamValue('windowLayout', [], @ischar);
+p.addParamValue('size', [], @isnumeric);
 p.parse(varargin{:});
-
 
 
 restoreLayout = false;
@@ -78,19 +80,32 @@ end
 for ix_f = 1:numel(figureHandles)
     figureHandle = figureHandles(ix_f);
     if (isempty(get(figureHandle, 'Children'))), continue; end  % skip blank figures
-    
+
+    restore = struct();
+    restore.paperPositionMode = get(figureHandle, 'PaperPositionMode');
+    restore.paperSize = get(figureHandle, 'PaperSize');
+    restore.paperPosition = get(figureHandle, 'PaperPosition');
+
+    if ~isempty(p.Results.size)
+        assert(all(size(p.Results.size) == [1 2]), 'size parameter should be vector of [w h]');
+        set(figureHandle, ...
+            'PaperPositionMode', 'manual', ...
+            'PaperSize', p.Results.size, ...
+            'PaperPosition', [0 0 p.Results.size(:)'] );
+    end
+
     figName = get(figureHandle,'Name');
-    
-    filenameBits = {};    
+
+    filenameBits = {};
 
     if (numel(filePrefix) > 0)
         filenameBits = [filenameBits, {filePrefix}];
     end
-    
+
     if includeFigNumber
         filenameBits = [filenameBits, {sprintf('%02d', figureHandle)}];
     end
-    
+
     if (numel(figName) > 0)
         filenameBits = [filenameBits, {figName}];
     end
@@ -98,14 +113,14 @@ for ix_f = 1:numel(figureHandles)
     if (isempty(filenameBits))
         filenameBits = [filenameBits, {sprintf('figure-%02d', figureHandle)}];
     end
-    
+
     if hideCaption
         h=get(findobj(figureHandle,'Tag','Colorbar'),'Title');
         if numel(h) == 1
             set(h,'Visible','off');
         end
     end
-    
+
     filenameBase = '';
     for i=1:numel(filenameBits)
         if (i > 1)
@@ -113,10 +128,10 @@ for ix_f = 1:numel(figureHandles)
         end
         filenameBase = [filenameBase filenameBits{i}];
     end
-    
+
     filenameBaseFull = [exportdir '/' filenameBase];
     fprintf('Saving fig %d with base %s\n', figureHandle, filenameBaseFull);
-    
+
     if asPdf; print(figureHandle, '-dpdf', [filenameBaseFull '.pdf']); end
     if asPng; export_fig('-png', sprintf('-r%d',pngRes), filenameBaseFull, figureHandle); end
     if asFig; saveas(figureHandle, [filenameBaseFull '.fig']); end
@@ -127,6 +142,12 @@ for ix_f = 1:numel(figureHandles)
             set(h,'Visible','on');
         end
     end
+
+    set(figureHandle, ...
+        'PaperPositionMode', restore.paperPositionMode, ...
+        'PaperSize', restore.paperSize, ...
+        'PaperPosition', restore.paperPosition );
+
 end
 
 if (saveWorkspaceMat)

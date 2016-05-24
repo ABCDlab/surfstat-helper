@@ -63,8 +63,11 @@ for iG=1:numGroupingTerms
     end
 end
 usableElements = ~isnan(valueOfInterest);
+
 [P,ANOVATAB,STATS] = anova1(valueOfInterest(usableElements), groupingTermCellstr(usableElements), 'off');
-P
+fprintf('histStacked ANOVA: p=%s (comparing %s)\n', num2str(P), abcd.util.joinCellStr(groupingTermNames, ', '));
+ANOVATAB
+STATS
 
 % histo - w/ normal fit
 figureHandle = figure;
@@ -82,9 +85,9 @@ for i = 1:numGroupingTerms
     if numNan > 0
         nanNote = sprintf('  [%d NaN values]', numNan);
     end
-    xlabel(sprintf('%s values for %s  (mean %.2f, SD %.2f)%s', valueTitle, groupingTermNames{i}, mean(values(usableValues)), std(values(usableValues)), nanNote));
+    xlabel(sprintf('%s values for %s  (mean %.2f, SD %.2f)%s', valueTitle, groupingTermNames{i}, mean(values(usableValues)), std(values(usableValues)), nanNote), 'Interpreter','none');
     if (i==1)
-        title(sprintf('%s\nP = %s', groupingTermTitle, num2str(P)));
+        title(sprintf('%s\nP = %s', groupingTermTitle, num2str(P)), 'Interpreter','none');
     end
 end
 
