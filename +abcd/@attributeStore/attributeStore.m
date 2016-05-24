@@ -1,20 +1,20 @@
 classdef attributeStore < handle
-    % AttributeStore is a class to store name-value attributes. 
+    % AttributeStore is a class to store name-value attributes.
     % The contents of the store can be rendered to a string in a flexible
     % format using the asString method.
-    
-    properties 
+
+    properties
         Attribs = struct();
     end
-    
+
     properties (Hidden)
         StringOptions = [];
     end
-    
+
     methods
-        function obj = AttributeStore(varargin)
+        function obj = attributeStore(varargin)
             % Create an AttributeStore object
-            if (nargin == 1) 
+            if (nargin == 1)
                 arg = varargin{1};
                 if (isa(arg, class(obj)))
                     % pass through
@@ -30,16 +30,16 @@ classdef attributeStore < handle
                 obj.set(varargin{:});
             end
         end
-        
+
         function value = value(AS, name)
-            % Get value of attribute 
+            % Get value of attribute
             if (~isfield(AS.Attribs, name))
                 value = [];
             else
                 value = AS.Attribs.(name);
             end
         end
-        
+
         function set(AS, varargin)
             % Set value of attribute
             for i=1:2:numel(varargin)
@@ -49,7 +49,7 @@ classdef attributeStore < handle
                 AS.Attribs.(name) = value;
             end
         end
-        
+
         function append(AS, name, value, delimiter)
             if (nargin < 4), delimiter = ','; end
             origValue = AS.value(name);
@@ -59,9 +59,9 @@ classdef attributeStore < handle
             end
             AS.set(name, [origValue delimiter value]);
         end
-        
+
         function clear(AS, name)
-            if (nargin < 2) 
+            if (nargin < 2)
                 AS.Attribs = struct();
             else
                 if (isfield(AS.Attribs, name))
@@ -69,11 +69,11 @@ classdef attributeStore < handle
                 end
             end
         end
-        
+
         function setStringOptions(AS, varargin)
             AS.StringOptions = parseStringOptions(varargin{:});
         end
-        
+
         function p = stringOptions(AS, varargin)
             if (~isempty(varargin))
                 p = parseStringOptions(varargin{:});
@@ -82,12 +82,12 @@ classdef attributeStore < handle
             else
                 p = parseStringOptions();
             end
-            
+
             if (isempty(p))
                 error('This AttributeStore does not have any stringOptions set yet');
             end
         end
-        
+
         function attributeString = asString(AS, varargin)
             % asString([optionName, optionValue...])
             %
@@ -97,12 +97,12 @@ classdef attributeStore < handle
             % attributeNames: attribute names are only included if this is true (default true)
             % attributeDelim: delimiter between attribute name and value (default '=')
             p = AS.stringOptions(varargin{:});
-            
+
             attributeString = '';
             n = 0;
             f = fieldnames(AS.Attribs);
             for i = 1:numel(f)
-                name = f{i};                
+                name = f{i};
                 value = AS.Attribs.(name);
                 valueString = '';
                 if (isnumeric(value))
@@ -117,11 +117,11 @@ classdef attributeStore < handle
                 else
                     error('Unknown type for attribute %s', name);
                 end
-                        
+
                 itemDelim = '';
                 nameString = '';
                 attributeDelim = '';
-                if (p.Results.attributeNames) 
+                if (p.Results.attributeNames)
                     nameString = name;
                     attributeDelim = p.Results.attributeDelim;
                 end
